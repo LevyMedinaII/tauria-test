@@ -9,36 +9,10 @@ import { paramMissingError } from '@shared/constants/errors';
 const router = Router();
 const userDao = new UserDao();
 
-
-/******************************************************************************
- *                      Get All Users - "GET /api/users/all"
- ******************************************************************************/
-
-router.get('/all', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
     const users = await userDao.getAll();
     return res.status(OK).json({users});
 });
-
-
-/******************************************************************************
- *                       Add One - "POST /api/users/add"
- ******************************************************************************/
-
-router.post('/add', async (req: Request, res: Response) => {
-    const { user } = req.body;
-    if (!user) {
-        return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
-        });
-    }
-    await userDao.add(user);
-    return res.status(CREATED).end();
-});
-
-
-/******************************************************************************
- *                       Update - "PUT /api/users/update"
- ******************************************************************************/
 
 router.put('/update', async (req: Request, res: Response) => {
     const { user } = req.body;
@@ -52,10 +26,10 @@ router.put('/update', async (req: Request, res: Response) => {
     return res.status(OK).end();
 });
 
-
-/******************************************************************************
- *                    Delete - "DELETE /api/users/delete/:id"
- ******************************************************************************/
+router.patch('/update/:id', async (req: Request, res: Response) => {
+    const { id } = req.params as ParamsDictionary;
+    return res.status(OK).end();
+});
 
 router.delete('/delete/:id', async (req: Request, res: Response) => {
     const { id } = req.params as ParamsDictionary;
@@ -63,9 +37,5 @@ router.delete('/delete/:id', async (req: Request, res: Response) => {
     return res.status(OK).end();
 });
 
-
-/******************************************************************************
- *                                     Export
- ******************************************************************************/
 
 export default router;

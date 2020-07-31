@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 
 import express, { Request, Response, NextFunction } from 'express';
-import { BAD_REQUEST } from 'http-status-codes';
+import { BAD_REQUEST, OK } from 'http-status-codes';
 import 'express-async-errors';
 
 import V1Router from './routes/v1';
@@ -35,6 +35,9 @@ if (process.env.NODE_ENV === 'production') {
 
 // Add APIs
 app.use('/v1', V1Router);
+app.get('/ping', async (req: Request, res: Response) => {
+    return res.status(OK).send('pong').end();
+});
 
 // Print API errors
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

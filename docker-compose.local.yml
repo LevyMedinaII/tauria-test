@@ -22,16 +22,5 @@ services:
       timeout: 10s
       retries: 3
 
-  frontend:
-    build:
-      context: ./microservices/frontend
-    image: frontend:1.0.0
-    depends_on:
-      - api
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./microservices/frontend:/app:rw
-
 volumes:
   db-data:
