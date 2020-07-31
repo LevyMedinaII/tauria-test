@@ -6,16 +6,16 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: thinking-machines-db
+      POSTGRES_DB: tauria-db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
 
   api:
     build:
-      context: ./video-server/api
+      context: ./video-server
     image: api:1.0.0
     volumes:
-      - ./microservices/api:/app:rw
+      - ./video-server:/app:rw
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/ping"]
       interval: 1m30s
