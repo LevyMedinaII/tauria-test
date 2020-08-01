@@ -1,32 +1,52 @@
-import { Request, Response, Router } from 'express';
-import { BAD_REQUEST, CREATED, OK } from 'http-status-codes';
+import bcrypt from 'bcrypt';
+import { Request, Response, Router, NextFunction } from 'express';
+import { BAD_REQUEST, CREATED, OK, UNAUTHORIZED } from 'http-status-codes';
 
-import UserDao from '@daos/User/UserDao.mock';
-import { paramMissingError } from '@shared/constants/errors';
+import UserDao from '@daos/User';
+import passport from '@shared/auth/passport';
+import { SALT_ROUNDS } from '@shared/constants/auth';
+import { PARAM_MISSING_ERROR, UNAUTHORIZED_ERROR } from '@shared/constants/errors';
 
 const router = Router();
-const userDao = new UserDao();
 
 router.post('/register', async (req: Request, res: Response) => {
-    const { user } = req.body;
-    if (!user) {
+    const { username, password, mobileToken } = req.body;
+    if (!username || !password) {
         return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
+            error: PARAM_MISSING_ERROR,
         });
     }
-    await userDao.add(user);
+
+    await bcrypt.genSalt(SALT_ROUNDS, async (err, salt) => {
+        await bcrypt.hash(password, salt, async (err, hash) => {
+            await UserDao.create({
+                username,
+                password: hash,
+                mobileToken,
+            });
+        });
+    });
+
     return res.status(CREATED).end();
 });
 
-router.post('/login', async (req: Request, res: Response) => {
-    const { user } = req.body;
+router.post('/login', passport.authenticate('user'), async (req: Request, res: Response) => {
+    const { user } = req;
     if (!user) {
-        return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
+        return res.status(UNAUTHORIZED).json({
+            error: UNAUTHORIZED_ERROR,
         });
     }
-    await userDao.add(user);
     return res.status(OK).end();
+});
+
+router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        req.logout();
+        return res.status(OK).end();
+    } catch (error) {
+        next(error);
+    }
 });
 
 export default router;

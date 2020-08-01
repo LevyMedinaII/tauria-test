@@ -1,13 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { BAD_REQUEST, CREATED, OK } from 'http-status-codes';
 import { ParamsDictionary } from 'express-serve-static-core';
-
-import UserDao from '@daos/User/UserDao.mock';
-import { paramMissingError } from '@shared/constants/errors';
+import { PARAM_MISSING_ERROR } from '@shared/constants/errors';
 
 // Init shared
 const router = Router();
-const userDao = new UserDao();
 
 router.get('/', async (req: Request, res: Response) => {
     const users = await userDao.getAll();
@@ -18,7 +15,7 @@ router.put('/update', async (req: Request, res: Response) => {
     const { user } = req.body;
     if (!user) {
         return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
+            error: PARAM_MISSING_ERROR,
         });
     }
     user.id = Number(user.id);

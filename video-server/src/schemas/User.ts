@@ -1,19 +1,16 @@
-export interface IUser {
+export interface IUserSchema {
     username: string;
-    password: string;
     mobileToken?: string;
 }
 
-class User implements IUser {
+class UserSchema implements IUserSchema {
     public username: string;
-    public password: string;
     public mobileToken?: string;
 
     constructor(username: string, password: string, mobileToken?: string) {
         this.username = username;
-        this.password = password;
         this.mobileToken = mobileToken;
     }
 }
 
-export default User;
+export default UserSchema;

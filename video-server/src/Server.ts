@@ -6,14 +6,12 @@ import express, { Request, Response, NextFunction } from 'express';
 import { BAD_REQUEST, OK } from 'http-status-codes';
 import 'express-async-errors';
 
-import V1Router from './routes/v1';
+import passport from '@shared/auth/passport';
 import logger from '@shared/helpers/Logger';
-
+import V1Router from './routes/v1';
 
 // Init express
 const app = express();
-
-
 
 /************************************************************************************
  *                              Set basic express settings
@@ -22,6 +20,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Show routes called in console during development
 if (process.env.NODE_ENV === 'development') {
