@@ -1,25 +1,18 @@
 export interface IUser {
-    id: number;
-    name: string;
-    email: string;
+    username: string;
+    password: string;
+    mobileToken?: string;
 }
 
 class User implements IUser {
+    public username: string;
+    public password: string;
+    public mobileToken?: string;
 
-    public id: number;
-    public name: string;
-    public email: string;
-
-    constructor(nameOrUser: string | IUser, email?: string, id?: number) {
-        if (typeof nameOrUser === 'string') {
-            this.name = nameOrUser;
-            this.email = email || '';
-            this.id = id || -1;
-        } else {
-            this.name = nameOrUser.name;
-            this.email = nameOrUser.email;
-            this.id = nameOrUser.id;
-        }
+    constructor(username: string, password: string, mobileToken?: string) {
+        this.username = username;
+        this.password = password;
+        this.mobileToken = mobileToken;
     }
 }
 
