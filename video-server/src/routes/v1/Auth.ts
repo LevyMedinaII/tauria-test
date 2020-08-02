@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { Request, Response, Router, NextFunction } from 'express';
 import { BAD_REQUEST, CREATED, OK, UNAUTHORIZED } from 'http-status-codes';
 
-import UserDao from '@daos/User';
+import { User as UserDao } from '@daos/index';
 
 import passport from '@shared/auth/passport';
 import { SALT_ROUNDS } from '@shared/constants/auth';

@@ -1,5 +1,4 @@
-import UserDao from '@daos/User';
-import User from '@daos/User';
+import { User as UserDao } from '@daos/index';
 
 export interface IUserSchema {
     username: string;

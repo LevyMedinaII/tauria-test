@@ -1,11 +1,13 @@
 import { Request, Response, Router, NextFunction } from 'express';
-import { BAD_REQUEST, OK, FORBIDDEN } from 'http-status-codes';
+import { OK, FORBIDDEN, NOT_FOUND } from 'http-status-codes';
 import { ParamsDictionary } from 'express-serve-static-core';
-import moment from 'moment';
+import bcrypt from 'bcrypt';
 
-import UserDao from '@daos/User';
+import { User as UserDao, Room } from '@daos/index';
 import UserSchema from '@schemas/User';
+import RoomSchema from '@schemas/Room';
 import { user as verifyUser } from '@shared/auth/verify';
+import { SALT_ROUNDS } from '@shared/constants/auth';
 import { FORBIDDEN_ERROR, USER_NOT_FOUND_ERROR } from '@shared/constants/errors';
 
 const router = Router();
@@ -27,7 +29,7 @@ router.get('/username/:username/unsanitized', async (req: Request, res: Response
     try {
         const user = await UserDao.findOne({ where: { username }});
         if (!user) {
-            return res.status(BAD_REQUEST).send({ error: USER_NOT_FOUND_ERROR });
+            return res.status(NOT_FOUND).send({ error: USER_NOT_FOUND_ERROR });
         }
 
         return res.status(OK).json(user);
@@ -47,12 +49,27 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
+router.get('/username/:username/rooms', async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.params as ParamsDictionary;
+    try {
+        const user = await UserDao.findOne({ where: { username }, include: ['rooms']});
+
+        if (!user) {
+            return res.status(NOT_FOUND).send({ error: USER_NOT_FOUND_ERROR });
+        }
+
+        return res.status(OK).json(user.rooms);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.get('/username/:username', async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params as ParamsDictionary;
     try {
         const user = await UserDao.findOne({ where: { username }});
         if (!user) {
-            return res.status(BAD_REQUEST).send({ error: USER_NOT_FOUND_ERROR });
+            return res.status(NOT_FOUND).send({ error: USER_NOT_FOUND_ERROR });
         }
         return res.status(OK).json(UserSchema.fromDao(user));
     } catch (error) {
@@ -62,14 +79,20 @@ router.get('/username/:username', async (req: Request, res: Response, next: Next
 
 router.patch('/username/:username', verifyUser, async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params as ParamsDictionary;
-    const { body } = req;
-    const sessionUser = req.user as UserSchema;
+    const { password, mobileToken } = req.body;
+    const sessionUser = req.user as UserDao;
 
     try {
         if (sessionUser && sessionUser.username !== username) {
-            return res.status(FORBIDDEN).send({ error: FORBIDDEN_ERROR })
+            return res.status(FORBIDDEN).send({ error: FORBIDDEN_ERROR });
         } else {
-            await UserDao.update(body, { where: { username }});
+            const salt = await bcrypt.genSalt(SALT_ROUNDS);
+            const updates = {
+                ...(mobileToken && { mobileToken }),
+                ...(password && { password: await bcrypt.hash(password, salt) })
+            };
+
+            await UserDao.update(updates, { where: { username } });
             return res.status(OK).end();
         }
     } catch (error) {
@@ -79,7 +102,7 @@ router.patch('/username/:username', verifyUser, async (req: Request, res: Respon
 
 router.delete('/username/:username', verifyUser, async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.params as ParamsDictionary;
-    const sessionUser = req.user as UserSchema;
+    const sessionUser = req.user as UserDao;
 
     try {
         if (sessionUser && sessionUser.username !== username) {

@@ -1,7 +1,7 @@
 import passport from 'passport';
 import bcrypt from 'bcrypt';
 import { Strategy as LocalStrategy } from 'passport-local';
-import UserDao from '@daos/User';
+import { User as UserDao } from '@daos/index';
 import { ACCOUNT_CLOSED_ERROR, USER_NOT_FOUND_ERROR } from '@shared/constants/errors';
 
 passport.serializeUser((user: UserDao, done) => {
