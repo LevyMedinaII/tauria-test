@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:9.4
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: tauria-prod-db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+
+  api:
+    build:
+      context: ./video-server
+      dockerfile: Dockerfile-production
+    image: api:1.0.0
+    volumes:
+      - ./video-server:/app:rw
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/ping"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "3000:3000"
+
+volumes:
+  db-data:

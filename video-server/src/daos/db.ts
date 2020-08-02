@@ -1,6 +1,12 @@
 import { Sequelize } from 'sequelize';
 
-const sequelize = new Sequelize('postgresql://user:password@db:5432/tauria-db');
+let db = 'tauria-db';
+
+if (process.env.NODE_ENV === 'production') {
+    db = 'tauria-prod-db';
+}
+
+const sequelize = new Sequelize(`postgresql://user:password@db:5432/${db}`);
 
 const authenticate = async () => {
     await sequelize.authenticate();

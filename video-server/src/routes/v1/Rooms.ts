@@ -13,8 +13,8 @@ import {
     USER_NOT_A_PARTICIPANT_ERROR,
     FORBIDDEN_ERROR,
 } from '@shared/constants/errors';
-import UserSchema from 'src/schemas/User';
-import RoomSchema from 'src/schemas/Room';
+import UserSchema from '@schemas/User';
+import RoomSchema from '@schemas/Room';
 
 const router = Router();
 

@@ -6,7 +6,7 @@ case $1 in
         ;;
     prod)
         echo "Running application in production mode"
-        eval "docker-compose -f docker-compose.prod.yml up --build -d"
+        eval "docker-compose -f docker-compose.prod.yml up --build"
         ;;
     *)
         echo "Invalid environment. Choose from local or prod"
