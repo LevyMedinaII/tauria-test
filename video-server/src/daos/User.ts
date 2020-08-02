@@ -5,6 +5,7 @@ interface UserAttributes {
     username: string;
     password: string;
     mobileToken?: string;
+    dateRemoved?: Date;
   }
   
 interface UserCreationAttributes extends Optional<UserAttributes, "username"> {}
@@ -13,6 +14,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public username!: string;
     public password!: string;
     public mobileToken?: string;
+    public dateRemoved?: Date;
 }
 
 User.init({
@@ -29,6 +31,10 @@ User.init({
         type: DataTypes.STRING,
         allowNull: true,
     },
+    dateRemoved: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    }
 }, {
     sequelize,
     modelName: 'User',

@@ -1,4 +1,4 @@
-FROM node:carbon
+FROM node:10.19.0
 
 COPY ./package.json /app/package.json
 

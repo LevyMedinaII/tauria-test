@@ -4,6 +4,7 @@ import helmet from 'helmet';
 
 import express, { Request, Response, NextFunction } from 'express';
 import { BAD_REQUEST, OK } from 'http-status-codes';
+import session from 'express-session';
 import 'express-async-errors';
 
 import passport from '@shared/auth/passport';
@@ -20,6 +21,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(session({ secret: 'api3000', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 

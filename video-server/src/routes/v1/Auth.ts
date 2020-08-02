@@ -3,13 +3,14 @@ import { Request, Response, Router, NextFunction } from 'express';
 import { BAD_REQUEST, CREATED, OK, UNAUTHORIZED } from 'http-status-codes';
 
 import UserDao from '@daos/User';
+
 import passport from '@shared/auth/passport';
 import { SALT_ROUNDS } from '@shared/constants/auth';
-import { PARAM_MISSING_ERROR, UNAUTHORIZED_ERROR } from '@shared/constants/errors';
+import { PARAM_MISSING_ERROR, UNAUTHORIZED_ERROR, USER_ALREADY_EXISTS_ERROR } from '@shared/constants/errors';
 
 const router = Router();
 
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
     const { username, password, mobileToken } = req.body;
     if (!username || !password) {
         return res.status(BAD_REQUEST).json({
@@ -17,17 +18,19 @@ router.post('/register', async (req: Request, res: Response) => {
         });
     }
 
-    await bcrypt.genSalt(SALT_ROUNDS, async (err, salt) => {
-        await bcrypt.hash(password, salt, async (err, hash) => {
-            await UserDao.create({
-                username,
-                password: hash,
-                mobileToken,
-            });
+    try {
+        const salt = await bcrypt.genSalt(SALT_ROUNDS);
+        const hash = await bcrypt.hash(password, salt);
+        await UserDao.create({
+            username,
+            password: hash,
+            mobileToken,
         });
-    });
 
-    return res.status(CREATED).end();
+        return res.status(CREATED).end();
+    } catch (error) {
+        next(new Error(USER_ALREADY_EXISTS_ERROR));
+    }
 });
 
 router.post('/login', passport.authenticate('user'), async (req: Request, res: Response) => {
